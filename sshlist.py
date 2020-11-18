@@ -70,6 +70,15 @@ class SSHList:
         else:
             print ('Tidak ditemukan informasi dengan nama {}'.format(name))
 
+    def delete(self, name):
+        print(name)
+        data = self.data.get(name)
+        if (data):
+            del self.data[name]
+            self.write()
+        else:
+            print('Tidak ditemukan informasi dengan nama {}'.format(name))
+
     def parsedata(self):
         ret = {}
         with open(self.source, "r") as f:
@@ -84,18 +93,18 @@ class SSHList:
         with open(self.source, "w") as f:
             f.write(json.dumps(self.data))
             f.close()
+
         
 
 
 def main():
     ssh = SSHList()
     ssh.prepare()
-    
-    funcs = ['store', 'list']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--store', '-s', action='store_true')
     parser.add_argument('--list', '-l', action='store_true')
+    parser.add_argument('--delete', '-d')
     parser.add_argument('--get', '-g')
     parser.add_argument('--find', '-f', action='store_true')
     args = parser.parse_args()
