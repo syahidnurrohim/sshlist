@@ -4,9 +4,12 @@ from screen import Screen
 
 class SSHList:
 
-    def __init__(self, stdscr):
+    def __init__(self):
         self.base_path = '/usr/share/SSHList'
         self.source = '{}/list'.format(self.base_path)
+
+    def init_screen(self):
+        stdscr = curses.initscr()
         self.frags = Screen(stdscr)
         self.screen = stdscr
 
@@ -41,6 +44,7 @@ class SSHList:
         pass
 
     def find(self):
+        self.init_screen()
         self.frags.panel()
         #curses.echo()
         #self.screen.clear()
@@ -59,6 +63,13 @@ class SSHList:
         prompted = inquirer.list_input('Credentials List', choices=[d for d in self.data])
         print(self.data.get(prompted))
 
+    def get(self, name):
+        data = self.data.get(name)
+        if (data):
+            print (data)
+        else:
+            print ('Tidak ditemukan informasi dengan nama {}'.format(name))
+
     def parsedata(self):
         ret = {}
         with open(self.source, "r") as f:
@@ -76,8 +87,8 @@ class SSHList:
         
 
 
-def main(stdscr):
-    ssh = SSHList(stdscr)
+def main():
+    ssh = SSHList()
     ssh.prepare()
     
     funcs = ['store', 'list']
@@ -85,11 +96,19 @@ def main(stdscr):
     parser = argparse.ArgumentParser()
     parser.add_argument('--store', '-s', action='store_true')
     parser.add_argument('--list', '-l', action='store_true')
+    parser.add_argument('--get', '-g')
     parser.add_argument('--find', '-f', action='store_true')
     args = parser.parse_args()
 
     for d in vars(args):
-        if (vars(args)[d]): getattr(ssh, d)()
+        val = vars(args)[d]
+        if type(val) is bool:
+            if (val): 
+                getattr(ssh, d)()
+        else:
+            if (val != None):
+                getattr(ssh, d)(val)
+
 
 if __name__ == '__main__':
-    curses.wrapper(main)
+    main()
