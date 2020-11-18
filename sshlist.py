@@ -41,14 +41,15 @@ class SSHList:
         pass
 
     def find(self):
-        curses.echo()
-        self.screen.clear()
-        self.frags.input('Message')
+        self.frags.panel()
+        #curses.echo()
+        #self.screen.clear()
+        #self.frags.input('Message')
         key = ''
 
         while key != ord('q'):
             key = self.screen.getch()
-            screen.refresh()
+            self.screen.refresh()
             #if c == curses.KEY_ENTER or c == 10 or c == 13:
                 #curses.nl()
 
