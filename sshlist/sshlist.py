@@ -1,6 +1,6 @@
 import os, json, argparse, ast, sys, time, curses
 import inquirer
-from screen import Screen
+from .screen import Screen
 
 class SSHList:
 
@@ -40,9 +40,6 @@ class SSHList:
         self.data[cred_name] = lines
         self.write()
 
-    def delete(self):
-        pass
-
     def find(self):
         self.init_screen()
         self.frags.panel()
@@ -71,9 +68,8 @@ class SSHList:
             print ('Tidak ditemukan informasi dengan nama {}'.format(name))
 
     def delete(self, name):
-        print(name)
         data = self.data.get(name)
-        if (data):
+        if (data != None):
             del self.data[name]
             self.write()
         else:
