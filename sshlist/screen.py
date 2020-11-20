@@ -1,75 +1,79 @@
 import curses
 from curses import panel
 
-class Screen():
+class Win():
+
     def __init__(self, screen):
+        self.x = 0
+        self.y = 1
         self.screen = screen
+        curses.use_default_colors()
+        curses.init_pair(1, curses.COLOR_CYAN, -1)
+        curses.init_pair(2, curses.COLOR_YELLOW, -1)
 
-    def input(self, message, x = 0, y = 0):
-        char_len = len(message)
-        self.screen.addstr(y, x, 'Input: ')
-        self.screen.refresh()
-        return self.screen.getstr(y, char_len, 60)
+    def draw(self):
+        self.win = self.screen.subwin(self.y, self.x)
 
-    def panel(self, x = 0, y = 0):
-        menu = Menu(['kwkwkw'], self.screen)
-        menu.display()
+class LeftWin(Win):
 
+    def __init__(self, screen):
+        super().__init__(screen)
+        self.x = 1
+        self.position = self.y
 
-class Menu():
-
-    def __init__(self, items, stdscreen):
-        self.window = stdscreen.subwin(0, 0)
-        self.window.keypad(1)
-        self.panel = panel.new_panel(self.window)
-        self.panel.hide()
-        panel.update_panels()
-
-        self.position = 0
+    def draw(self, items = [[]]):
         self.items = items
-        self.items.append(("exit", "exit"))
+        self.selected_item = items[0][0]
+        super().draw()
+        self.navigate(0)
 
-    def navigate(self, n):
-        self.position += n
-        if self.position < 0:
-            self.position = 0
-        elif self.position >= len(self.items):
-            self.position = len(self.items) - 1
+    def start(self):
+        self.win.addstr(20, 0, 'ENTERED START {}'.format(self.selected_item))
 
-    def display(self):
-        self.panel.top()
-        self.panel.show()
-        self.window.clear()
+    def draw_menu(self):
+        self.selected_item = self.items[self.position-self.y][0]
+        for i, d in enumerate(self.items):
+            mode = curses.A_REVERSE if i == self.position-self.y else curses.A_NORMAL
+            self.win.addstr(i, self.x, '{}. {}'.format(i+1, d[0]), mode)
+    
+    def navigate(self, direction):
+        self.position += direction
+        if self.position-self.y < 0 : self.position = self.y
+        if self.position-self.y > len(self.items)-1 : self.position = len(self.items)-1+self.y
 
-        while True:
-            self.window.refresh()
-            curses.doupdate()
-            for index, item in enumerate(self.items):
-                if index == self.position:
-                    mode = curses.A_REVERSE
-                else:
-                    mode = curses.A_NORMAL
+        self.draw_menu()
+        self.screen.move(self.position, self.x)
 
-                msg = "%d. %s" % (index, item[0])
-                self.window.addstr(1 + index, 1, msg, mode)
+    def listen(self, key):
+        if key == curses.KEY_DOWN: self.navigate(1)
+        elif key == curses.KEY_UP: self.navigate(-1)
+        elif key in [curses.KEY_ENTER, ord('\n')]: self.items[self.position][1]()
 
-            key = self.window.getch()
 
-            if key in [curses.KEY_ENTER, ord("\n")]:
-                if self.position == len(self.items) - 1:
-                    break
-                else:
-                    self.items[self.position][1]()
 
-            elif key == curses.KEY_UP:
-                self.navigate(-1)
+class RightWin(Win):
 
-            elif key == curses.KEY_DOWN:
-                self.navigate(1)
+    def __init__(self, screen):
+        super().__init__(screen)
 
-        self.window.clear()
-        self.panel.hide()
-        panel.update_panels()
-        curses.doupdate()
+    def draw(self):
+        self.x = int(curses.COLS/5)
+        super().draw()
+        self.win.border(0)
+
+    def draw_info(self, text):
+        self.win.clear()
+        inf = 'Information:'
+        self.win.addstr(0, 0, inf, curses.color_pair(1))
+        for i, d in enumerate(text.split('\n')):
+            self.win.addstr(i, len(inf), " {}".format(d), curses.color_pair(2))
+
+
+
+
+
+
+
+
 
 

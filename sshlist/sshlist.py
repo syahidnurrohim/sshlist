@@ -1,6 +1,6 @@
 import os, json, argparse, ast, sys, time, curses
 import inquirer
-from .screen import Screen
+from screen import LeftWin, RightWin
 
 class SSHList:
 
@@ -8,10 +8,35 @@ class SSHList:
         self.base_path = '/usr/share/SSHList'
         self.source = '{}/list'.format(self.base_path)
 
+    def init_border(self):
+        config = {
+            "BORDER_LS": '+',
+            "BORDER_RS": '+',
+            "BORDER_TS": '+',
+            "BORDER_BS": '+',
+            "BORDER_BL": '+',
+            "BORDER_TL": '+',
+            "BORDER_TR": '+',
+            "BORDER_BR": '+'
+        }
+        self.screen.border(
+            config.BORDER_LS, 
+            config.BORDER_RS, 
+            config.BORDER_TS, 
+            config.BORDER_BS, 
+            config.BORDER_TL, 
+            config.BORDER_TR,
+            config.BORDER_BL,
+            config.BORDER_BR
+        )
+
     def init_screen(self):
         stdscr = curses.initscr()
-        self.frags = Screen(stdscr)
         self.screen = stdscr
+        curses.noecho()
+        curses.start_color()
+        self.init_border()
+        self.screen.keypad(1)
 
     def prepare(self):
         os.makedirs(self.base_path, exist_ok=True)
@@ -42,17 +67,27 @@ class SSHList:
 
     def find(self):
         self.init_screen()
-        self.frags.panel()
-        #curses.echo()
-        #self.screen.clear()
-        #self.frags.input('Message')
+        left = LeftWin(self.screen)
+        right = RightWin(self.screen)
+        menu = [[d, left.start] for d in self.data.keys()]
+        left.draw(menu)
+        right.draw()
         key = ''
 
         while key != ord('q'):
-            key = self.screen.getch()
+            self.screen.redrawwin()
+
+            if key == curses.KEY_RESIZE:
+                self.screen.clear()
+                curses.update_lines_cols()
+                left.draw(menu)
+                right.draw()
+
+            left.listen(key)
+            right.draw_info(self.data[left.selected_item])
+            self.init_border()
             self.screen.refresh()
-            #if c == curses.KEY_ENTER or c == 10 or c == 13:
-                #curses.nl()
+            key = self.screen.getch()
 
         curses.endwin()
 
