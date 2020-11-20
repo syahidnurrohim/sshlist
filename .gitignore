@@ -1,6 +1,7 @@
 *.swp
 *.swl
 *.swo
+*.swn
 build
 dist
 sshlist/coba.py

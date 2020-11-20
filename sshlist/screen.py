@@ -8,11 +8,11 @@ class Win():
         self.y = 1
         self.screen = screen
         curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_CYAN, -1)
-        curses.init_pair(2, curses.COLOR_YELLOW, -1)
+        curses.init_pair(1, curses.COLOR_YELLOW, -1)
+        curses.init_pair(2, curses.COLOR_WHITE, -1)
 
     def draw(self):
-        self.win = self.screen.subwin(self.y, self.x)
+        self.win = self.screen.subpad(self.y, self.x)
 
 class LeftWin(Win):
 
@@ -65,15 +65,26 @@ class RightWin(Win):
         self.win.clear()
         inf = 'Information:'
         self.win.addstr(0, 0, inf, curses.color_pair(1))
+        self.win.addstr(1, 0, '-'*((curses.COLS-self.x)-2), curses.A_BOLD)
         for i, d in enumerate(text.split('\n')):
-            self.win.addstr(i, len(inf), " {}".format(d), curses.color_pair(2))
+            self.win.addstr(i+2, 0, "[+] {}".format(d), curses.color_pair(2))
 
 
+class Separator(Win):
+    def __init__(self, screen):
+        super().__init__(screen)
 
+    def draw(self, x):
+        self.win = self.screen.subwin(curses.LINES, 1, 0, x)
+        self.win.border(0)
 
+class Attributes(Win):
 
+    def __init__(self, screen):
+        super().__init__(screen)
 
+    def draw(self):
+        self.screen.addstr(curses.LINES-2, 2, 'Press q to Exit')
 
-
-
+        
 
