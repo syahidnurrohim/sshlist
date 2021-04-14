@@ -1,6 +1,6 @@
 import os, json, argparse, ast, sys, time, curses
 import inquirer
-from screen import LeftWin, RightWin, Separator, Attributes
+from screen import LeftWin, RightWin, Attributes, Input, Separator
 
 class SSHList:
 
@@ -10,28 +10,28 @@ class SSHList:
 
     def init_border(self):
         config = {
-            "BORDER_LS": '|',
-            "BORDER_TS": '\0',
-            "BORDER_RS": '|',
-            "BORDER_BS": '\0',
-            "BORDER_BL": '\0',
-            "BORDER_TL": '\0',
-            "BORDER_TR": '\0',
-            "BORDER_BR": '\0'
-        }
+                "BORDER_LS": '|',
+                "BORDER_TS": '\0',
+                "BORDER_RS": '|',
+                "BORDER_BS": '\0',
+                "BORDER_BL": '\0',
+                "BORDER_TL": '\0',
+                "BORDER_TR": '\0',
+                "BORDER_BR": '\0'
+                }
         self.screen.border(
-            config["BORDER_LS"], 
-            config["BORDER_RS"], 
-            config["BORDER_TS"], 
-            config["BORDER_BS"], 
-            config["BORDER_TL"], 
-            config["BORDER_TR"],
-            config["BORDER_BL"],
-            config["BORDER_BR"]
-        )
+                config["BORDER_LS"],
+                config["BORDER_RS"],
+                config["BORDER_TS"],
+                config["BORDER_BS"],
+                config["BORDER_TL"],
+                config["BORDER_TR"],
+                config["BORDER_BL"],
+                config["BORDER_BR"]
+                )
 
-    def init_screen(self):
-        stdscr = curses.initscr()
+        def init_screen(self):
+            stdscr = curses.initscr()
         self.screen = stdscr
         curses.noecho()
         curses.start_color()
@@ -42,7 +42,7 @@ class SSHList:
         os.makedirs(self.base_path, exist_ok=True)
         if (os.path.isfile(self.source) == False):
             open(self.source, 'a').close()
-        
+
         self.data = self.parsedata()
 
     def store(self):
@@ -61,7 +61,7 @@ class SSHList:
         if (cred_name in self.data):
             print("Nama tersebut telah digunakan!\n")
             sys.exit(2)
-        
+
         self.data[cred_name] = lines
         self.write()
 
@@ -70,12 +70,14 @@ class SSHList:
         left = LeftWin(self.screen)
         right = RightWin(self.screen)
         attr = Attributes(self.screen)
+        search = Input(self.screen)
         menu = [[d, left.start] for d in self.data.keys()]
         left.draw(menu)
         right.draw()
         border = Separator(self.screen)
         border.draw(right.x-2)
         attr.draw()
+        search.draw()
         key = ''
 
         while key != ord('q'):
@@ -92,6 +94,7 @@ class SSHList:
             right.draw_info(self.data[left.selected_item])
             self.init_border()
             attr.draw()
+            self.screen.addstr(50, 50, str(key))
             key = self.screen.getch()
 
         curses.endwin()
@@ -130,7 +133,7 @@ class SSHList:
             f.write(json.dumps(self.data))
             f.close()
 
-        
+
 
 
 def main():
@@ -148,7 +151,7 @@ def main():
     for d in vars(args):
         val = vars(args)[d]
         if type(val) is bool:
-            if (val): 
+            if (val):
                 getattr(ssh, d)()
         else:
             if (val != None):
