@@ -5,6 +5,6 @@
 build
 dist
 sshlist/coba.py
-sshlist.egg-info
+sshlist_cli.egg-info
 __pycache__
 *.spec

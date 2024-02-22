@@ -1,6 +1,6 @@
 import os, json, argparse, ast, sys, time, curses
 import inquirer
-from screen import LeftWin, RightWin, Separator, Attributes
+from .screen import LeftWin, RightWin, Separator, Attributes
 
 class SSHList:
 

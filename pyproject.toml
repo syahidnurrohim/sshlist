@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sshlist-cli"
+version = "1.0.0"
+authors = [{ name = "Syahid Nurrohim", email = "syahidnurrohim@gmail.com" }]
+description = "SSH Information Manager using CLI"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 2",
+  "Programming Language :: Python :: 3",
+]
+dependencies = ["inquirer"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+namespaces = false
+
+[project.urls]
+Homepage = "https://github.com/syahidnurrohim/sshlist"
+Issues = "https://github.com/syahidnurrohim/sshlist/issues"
+
+[project.scripts]
+sshlist = "sshlist.sshlist:main"
